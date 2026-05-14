@@ -1,0 +1,31 @@
+name: Moodle Plugin CI
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['7.4', '8.0', '8.1', '8.2']
+        moodle-branch: ['MOODLE_39_STABLE', 'MOODLE_400_STABLE', 'MOODLE_405_STABLE']
+
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v3
+      with:
+        path: plugin
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ matrix.php }}
+        extensions: mbstring, pgsql, mysqli, gd, xml, curl, zip
+
+    - name: Clone Moodle core
+      run: |
+        git clone -b ${{ matrix.moodle-branch }} --depth 1 https://github.com/moodle/moodle.git moodle
+        cp -r plugin moodle/mod/quiz/accessrule/attemptpassword
+
+    - name: Run PHP linting
+      run: find moodle/mod/quiz/accessrule/attemptpassword -name "*.php" -print0 | xargs -0 -n1 php -l
