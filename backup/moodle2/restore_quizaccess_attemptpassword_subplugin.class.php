@@ -55,6 +55,15 @@ class restore_quizaccess_attemptpassword_subplugin extends restore_mod_quiz_acce
 
         $data = (object)$data;
         $data->quizid = $this->get_new_parentid('quiz');
-        $DB->insert_record('quizaccess_attemptpassword', $data);
+
+        // Use upsert pattern to avoid duplicate key violation when restoring
+        // into a quiz that already has a record (e.g. duplicate-course scenarios).
+        $existing = $DB->get_record('quizaccess_attemptpassword', ['quizid' => $data->quizid]);
+        if ($existing) {
+            $data->id = $existing->id;
+            $DB->update_record('quizaccess_attemptpassword', $data);
+        } else {
+            $DB->insert_record('quizaccess_attemptpassword', $data);
+        }
     }
 }

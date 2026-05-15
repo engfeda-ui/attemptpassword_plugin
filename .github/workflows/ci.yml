@@ -5,27 +5,83 @@ on: [push, pull_request]
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: moodle
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
     strategy:
+      fail-fast: false
       matrix:
-        php: ['7.4', '8.0', '8.1', '8.2']
-        moodle-branch: ['MOODLE_39_STABLE', 'MOODLE_400_STABLE', 'MOODLE_405_STABLE']
+        include:
+          - php: '7.4'
+            moodle-branch: 'MOODLE_39_STABLE'
+          - php: '8.0'
+            moodle-branch: 'MOODLE_400_STABLE'
+          - php: '8.1'
+            moodle-branch: 'MOODLE_401_STABLE'
+          - php: '8.2'
+            moodle-branch: 'MOODLE_405_STABLE'
 
     steps:
-    - name: Check out repository code
-      uses: actions/checkout@v3
-      with:
-        path: plugin
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          path: plugin
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: ${{ matrix.php }}
-        extensions: mbstring, pgsql, mysqli, gd, xml, curl, zip
+      - name: Setup PHP ${{ matrix.php }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, pgsql, mysqli, gd, xml, curl, zip
+          coverage: none
 
-    - name: Clone Moodle core
-      run: |
-        git clone -b ${{ matrix.moodle-branch }} --depth 1 https://github.com/moodle/moodle.git moodle
-        cp -r plugin moodle/mod/quiz/accessrule/attemptpassword
+      - name: Install moodle-plugin-ci
+        run: |
+          composer global require moodlehq/moodle-plugin-ci
+          echo "$HOME/.composer/vendor/bin" >> $GITHUB_PATH
 
-    - name: Run PHP linting
-      run: find moodle/mod/quiz/accessrule/attemptpassword -name "*.php" -print0 | xargs -0 -n1 php -l
+      - name: Install Moodle + plugin
+        run: |
+          moodle-plugin-ci install \
+            --plugin ./plugin \
+            --db-host 127.0.0.1 \
+            --db-user postgres \
+            --db-pass postgres \
+            --db-name moodle \
+            --db-type pgsql \
+            --branch ${{ matrix.moodle-branch }}
+        env:
+          DB: pgsql
+
+      - name: PHP Lint
+        if: always()
+        run: moodle-plugin-ci phplint
+
+      - name: Moodle Code Checker
+        if: always()
+        run: moodle-plugin-ci codechecker --max-warnings 0
+
+      - name: PHP Mess Detector
+        if: always()
+        run: moodle-plugin-ci phpmd
+        continue-on-error: true
+
+      - name: Validate plugin structure
+        if: always()
+        run: moodle-plugin-ci validate
+
+      - name: PHPUnit tests
+        if: always()
+        run: moodle-plugin-ci phpunit --fail-on-warning

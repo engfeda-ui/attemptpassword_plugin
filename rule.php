@@ -33,6 +33,9 @@ if (class_exists('\mod_quiz\local\access_rule_base')) {
     require_once($CFG->dirroot . '/mod/quiz/accessrule/accessrulebase.php');
 }
 
+// Ensure quiz library functions are available in all Moodle versions.
+require_once($CFG->dirroot . '/mod/quiz/locallib.php');
+
 /**
  * A rule enforcing attempt-specific passwords.
  *
@@ -95,9 +98,16 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
             $numattempts = (!empty($quiz->attempts) && $quiz->attempts > 0) ? (int)$quiz->attempts : 10;
             $generated = [];
             for ($i = 0; $i < $numattempts; $i++) {
-                $generated[] = str_pad(mt_rand(0, 9999), 4, '0', STR_PAD_LEFT);
+                // Use random_int() for cryptographically secure random generation.
+                $generated[] = str_pad(random_int(0, 9999), 4, '0', STR_PAD_LEFT);
             }
             $passwords = implode(',', $generated);
+        }
+
+        // Strip whitespace and remove any empty entries from the comma-separated list.
+        if (!empty($passwords)) {
+            $parts = array_filter(array_map('trim', explode(',', $passwords)));
+            $passwords = implode(',', $parts);
         }
 
         if (empty($passwords)) {
@@ -186,8 +196,9 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
             return false;
         }
 
+        global $SESSION;
         $sesskey = 'quizaccess_attemptpassword_' . $this->quiz->id . '_attempt_' . $attemptnum;
-        if (!empty($_SESSION[$sesskey])) {
+        if (!empty($SESSION->$sesskey)) {
             return false;
         }
 
@@ -230,8 +241,9 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
             $errors['attemptpassword_entry'] = get_string('wrongpassword', 'quizaccess_attemptpassword');
         } else if ($expected !== '' && $entered === $expected) {
             // Mark session key as passed on successful validation.
+            global $SESSION;
             $sesskey = 'quizaccess_attemptpassword_' . $this->quiz->id . '_attempt_' . $attemptnum;
-            $_SESSION[$sesskey] = true;
+            $SESSION->$sesskey = true;
         }
 
         return $errors;
@@ -243,8 +255,9 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
      * @param int|null $attemptid
      */
     public function notify_preflight_check_passed($attemptid) {
+        global $SESSION;
         $attemptnum = $this->get_attempt_number($attemptid);
         $sesskey = 'quizaccess_attemptpassword_' . $this->quiz->id . '_attempt_' . $attemptnum;
-        $_SESSION[$sesskey] = true;
+        $SESSION->$sesskey = true;
     }
 }
