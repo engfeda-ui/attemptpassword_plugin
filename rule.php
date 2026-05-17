@@ -64,12 +64,12 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
     /**
      * Add any fields that this rule requires to the quiz settings form.
      *
-     * @param mod_quiz_mod_form $quizform the quiz settings form that is being built.
-     * @param MoodleQuickForm $mform the wrapped MoodleQuickForm.
+     * @param \mod_quiz\form\setup $quizform the quiz settings form that is being built.
+     * @param \MoodleQuickForm $mform the wrapped MoodleQuickForm.
      */
     public static function add_settings_form_fields(
-        mod_quiz_mod_form $quizform,
-        MoodleQuickForm $mform
+        $quizform,
+        \MoodleQuickForm $mform
     ) {
         $mform->addElement('select', 'attemptpassword_genmethod', get_string('genmethod', 'quizaccess_attemptpassword'), [
             'manual' => get_string('genmethod_manual', 'quizaccess_attemptpassword'),
@@ -208,11 +208,11 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
     /**
      * Add any fields required by this rule to the preflight check form.
      *
-     * @param mod_quiz_preflight_check_form $quizform
-     * @param MoodleQuickForm $mform
+     * @param \mod_quiz\form\preflight_check $quizform
+     * @param \MoodleQuickForm $mform
      * @param int|null $attemptid
      */
-    public function add_preflight_check_form_fields(mod_quiz_preflight_check_form $quizform, MoodleQuickForm $mform, $attemptid) {
+    public function add_preflight_check_form_fields($quizform, \MoodleQuickForm $mform, $attemptid) {
         $attemptnum = $this->get_attempt_number($attemptid);
 
         $mform->addElement('passwordunmask', 'attemptpassword_entry', get_string('enterpasswordforattempt', 'quizaccess_attemptpassword', $attemptnum));
