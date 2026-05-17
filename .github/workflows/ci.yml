@@ -23,7 +23,7 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
-          POSTGRES_DB: moodle
+          # شيلنا POSTGRES_DB من هنا علشان الأداة تكريتها بنفسها بدون تعارض
         ports:
           - 5432:5432
         options: >-
@@ -46,14 +46,12 @@ jobs:
           ini-values: max_execution_time=600, memory_limit=512M
           tools: composer:v2
 
-      # الحل الدقيق: تثبيت الأداة الرسمية من MoodleHQ
       - name: Install moodle-plugin-ci
         run: |
           composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^3
           echo "$(cd ci/bin; pwd)" >> $GITHUB_PATH
           echo "$(cd ci/vendor/bin; pwd)" >> $GITHUB_PATH
 
-      # تهيئة الأداة مع قاعدة البيانات والبلجن
       - name: Initialize moodle-plugin-ci
         run: |
           moodle-plugin-ci install --plugin qtype/attemptpassword --db-host=127.0.0.1 --db-user=postgres --db-name=moodle --db-pass="" --db-type=pgsql
