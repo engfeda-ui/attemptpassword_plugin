@@ -33,22 +33,30 @@ require_once($CFG->dirroot . '/mod/quiz/backup/moodle2/backup_mod_quiz_access_su
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class backup_quizaccess_attemptpassword_subplugin extends backup_mod_quiz_access_subplugin {
-
+    /**
+     * Defines the quiz subplugin structure.
+     *
+     * @return backup_subplugin_element
+     */
     protected function define_quiz_subplugin_structure() {
-
         // Create XML elements.
         $subplugin = $this->get_subplugin_element();
         $subpluginwrapper = new backup_nested_element($this->get_recommended_name());
-        $subplugintablesettings = new backup_nested_element('quizaccess_attemptpassword',
-                null, array('genmethod', 'passwords'));
+        $subplugintablesettings = new backup_nested_element(
+            'quizaccess_attemptpassword',
+            null,
+            ['genmethod', 'passwords']
+        );
 
         // Connect XML elements into the tree.
         $subplugin->add_child($subpluginwrapper);
         $subpluginwrapper->add_child($subplugintablesettings);
 
         // Set source to populate the data.
-        $subplugintablesettings->set_source_table('quizaccess_attemptpassword',
-                array('quizid' => backup::VAR_ACTIVITYID));
+        $subplugintablesettings->set_source_table(
+            'quizaccess_attemptpassword',
+            ['quizid' => backup::VAR_ACTIVITYID]
+        );
 
         return $subplugin;
     }

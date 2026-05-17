@@ -18,7 +18,6 @@
  * Unit tests for the quizaccess_attemptpassword plugin.
  *
  * @package    quizaccess_attemptpassword
- * @category   phpunit
  * @copyright  2026 Mahmoud
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -40,7 +39,6 @@ require_once($CFG->dirroot . '/mod/quiz/accessrule/attemptpassword/rule.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class quizaccess_attemptpassword_testcase extends advanced_testcase {
-
     public function test_rule_creation_and_validation() {
         global $CFG;
 
