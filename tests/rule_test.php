@@ -25,7 +25,6 @@
 namespace quizaccess_attemptpassword;
 
 use advanced_testcase;
-use quizaccess_attemptpassword;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -38,7 +37,7 @@ require_once($CFG->dirroot . '/mod/quiz/accessrule/attemptpassword/rule.php');
  * @copyright  2026 Mahmoud
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class quizaccess_attemptpassword_testcase extends advanced_testcase {
+class rule_test extends advanced_testcase {
     public function test_rule_creation_and_validation() {
         global $CFG;
 
@@ -60,7 +59,7 @@ class quizaccess_attemptpassword_testcase extends advanced_testcase {
         ]);
         $quizobj = \quiz::create($quiz->id, $user->id);
 
-        $rule = quizaccess_attemptpassword::make($quizobj, 0, false);
+        $rule = \quizaccess_attemptpassword::make($quizobj, 0, false);
         $this->assertNull($rule);
 
         // Test 2: Rule applied if passwords are provided.
@@ -71,8 +70,8 @@ class quizaccess_attemptpassword_testcase extends advanced_testcase {
         ]);
         $quizobj = \quiz::create($quiz->id, $user->id);
 
-        $rule = quizaccess_attemptpassword::make($quizobj, 0, false);
-        $this->assertInstanceOf('quizaccess_attemptpassword', $rule);
+        $rule = \quizaccess_attemptpassword::make($quizobj, 0, false);
+        $this->assertInstanceOf(\quizaccess_attemptpassword::class, $rule);
 
         // Validate preflight check for Attempt 1.
         $errors = $rule->validate_preflight_check(['attemptpassword_entry' => 'wrong'], [], [], null);

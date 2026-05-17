@@ -33,6 +33,9 @@ if (class_exists('\mod_quiz\local\access_rule_base')) {
     require_once($CFG->dirroot . '/mod/quiz/accessrule/accessrulebase.php');
 }
 
+// Ensure quiz library functions are available in all Moodle versions.
+require_once($CFG->dirroot . '/mod/quiz/locallib.php');
+
 /**
  * A rule enforcing attempt-specific passwords.
  *
@@ -40,7 +43,6 @@ if (class_exists('\mod_quiz\local\access_rule_base')) {
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class quizaccess_attemptpassword extends quiz_access_rule_base {
-
     /**
      * Return an appropriately configured instance of this rule, if it is applicable
      * to the given quiz, otherwise return null.
@@ -61,20 +63,30 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
     /**
      * Add any fields that this rule requires to the quiz settings form.
      *
-     * @param mod_quiz_mod_form $quizform the quiz settings form that is being built.
-     * @param MoodleQuickForm $mform the wrapped MoodleQuickForm.
+     * @param \mod_quiz\form\setup $quizform the quiz settings form that is being built.
+     * @param \MoodleQuickForm $mform the wrapped MoodleQuickForm.
      */
     public static function add_settings_form_fields(
-        mod_quiz_mod_form $quizform,
-        MoodleQuickForm $mform
+        $quizform,
+        \MoodleQuickForm $mform
     ) {
-        $mform->addElement('select', 'attemptpassword_genmethod', get_string('genmethod', 'quizaccess_attemptpassword'), [
-            'manual' => get_string('genmethod_manual', 'quizaccess_attemptpassword'),
-            'random' => get_string('genmethod_random', 'quizaccess_attemptpassword'),
-        ]);
+        $mform->addElement(
+            'select',
+            'attemptpassword_genmethod',
+            get_string('genmethod', 'quizaccess_attemptpassword'),
+            [
+                'manual' => get_string('genmethod_manual', 'quizaccess_attemptpassword'),
+                'random' => get_string('genmethod_random', 'quizaccess_attemptpassword'),
+            ]
+        );
         $mform->setDefault('attemptpassword_genmethod', 'manual');
 
-        $mform->addElement('text', 'attemptpassword_passwords', get_string('attemptpassword', 'quizaccess_attemptpassword'), ['size' => 60]);
+        $mform->addElement(
+            'text',
+            'attemptpassword_passwords',
+            get_string('attemptpassword', 'quizaccess_attemptpassword'),
+            ['size' => 60]
+        );
         $mform->setType('attemptpassword_passwords', PARAM_RAW);
         $mform->addHelpButton('attemptpassword_passwords', 'attemptpassword', 'quizaccess_attemptpassword');
     }
@@ -95,9 +107,16 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
             $numattempts = (!empty($quiz->attempts) && $quiz->attempts > 0) ? (int)$quiz->attempts : 10;
             $generated = [];
             for ($i = 0; $i < $numattempts; $i++) {
-                $generated[] = str_pad(mt_rand(0, 9999), 4, '0', STR_PAD_LEFT);
+                // Use random_int() for cryptographically secure random generation.
+                $generated[] = str_pad(random_int(0, 9999), 4, '0', STR_PAD_LEFT);
             }
             $passwords = implode(',', $generated);
+        }
+
+        // Strip whitespace and remove any empty entries from the comma-separated list.
+        if (!empty($passwords)) {
+            $parts = array_filter(array_map('trim', explode(',', $passwords)));
+            $passwords = implode(',', $parts);
         }
 
         if (empty($passwords)) {
@@ -138,7 +157,7 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
         return [
             'attpass.genmethod AS attemptpassword_genmethod, attpass.passwords AS attemptpassword_passwords',
             'LEFT JOIN {quizaccess_attemptpassword} attpass ON attpass.quizid = quiz.id',
-            []
+            [],
         ];
     }
 
@@ -186,8 +205,9 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
             return false;
         }
 
+        global $SESSION;
         $sesskey = 'quizaccess_attemptpassword_' . $this->quiz->id . '_attempt_' . $attemptnum;
-        if (!empty($_SESSION[$sesskey])) {
+        if (!empty($SESSION->$sesskey)) {
             return false;
         }
 
@@ -197,14 +217,18 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
     /**
      * Add any fields required by this rule to the preflight check form.
      *
-     * @param mod_quiz_preflight_check_form $quizform
-     * @param MoodleQuickForm $mform
+     * @param \mod_quiz\form\preflight_check $quizform
+     * @param \MoodleQuickForm $mform
      * @param int|null $attemptid
      */
-    public function add_preflight_check_form_fields(mod_quiz_preflight_check_form $quizform, MoodleQuickForm $mform, $attemptid) {
+    public function add_preflight_check_form_fields($quizform, \MoodleQuickForm $mform, $attemptid) {
         $attemptnum = $this->get_attempt_number($attemptid);
 
-        $mform->addElement('passwordunmask', 'attemptpassword_entry', get_string('enterpasswordforattempt', 'quizaccess_attemptpassword', $attemptnum));
+        $mform->addElement(
+            'passwordunmask',
+            'attemptpassword_entry',
+            get_string('enterpasswordforattempt', 'quizaccess_attemptpassword', $attemptnum)
+        );
         $mform->setType('attemptpassword_entry', PARAM_RAW);
     }
 
@@ -230,8 +254,9 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
             $errors['attemptpassword_entry'] = get_string('wrongpassword', 'quizaccess_attemptpassword');
         } else if ($expected !== '' && $entered === $expected) {
             // Mark session key as passed on successful validation.
+            global $SESSION;
             $sesskey = 'quizaccess_attemptpassword_' . $this->quiz->id . '_attempt_' . $attemptnum;
-            $_SESSION[$sesskey] = true;
+            $SESSION->$sesskey = true;
         }
 
         return $errors;
@@ -243,8 +268,9 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
      * @param int|null $attemptid
      */
     public function notify_preflight_check_passed($attemptid) {
+        global $SESSION;
         $attemptnum = $this->get_attempt_number($attemptid);
         $sesskey = 'quizaccess_attemptpassword_' . $this->quiz->id . '_attempt_' . $attemptnum;
-        $_SESSION[$sesskey] = true;
+        $SESSION->$sesskey = true;
     }
 }

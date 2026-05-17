@@ -1,31 +1,77 @@
-name: Moodle Plugin CI
+# GitHub Actions workflow for Moodle plugin CI (Modern Versions Focus).
+name: CI/CD Support
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+
     strategy:
+      fail-fast: false
       matrix:
-        php: ['7.4', '8.0', '8.1', '8.2']
-        moodle-branch: ['MOODLE_39_STABLE', 'MOODLE_400_STABLE', 'MOODLE_405_STABLE']
+        php: ['8.1', '8.2', '8.3']
+        moodle-branch: ['MOODLE_405_STABLE']
+
+    services:
+      postgres:
+        image: postgres:13
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
-    - name: Check out repository code
-      uses: actions/checkout@v3
-      with:
-        path: plugin
+      # تم تعديل المسار هنا لـ quizaccess ليتوافق مع نوع إضافتك الفعلي
+      - name: Check out repository
+        uses: actions/checkout@v3
+        with:
+          path: quizaccess/attemptpassword
 
-    - name: Setup PHP
-      uses: shivammathur/setup-php@v2
-      with:
-        php-version: ${{ matrix.php }}
-        extensions: mbstring, pgsql, mysqli, gd, xml, curl, zip
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: mbstring, pgsql, mysqli, gd, xml, intl, soap, zip
+          ini-values: max_execution_time=600, memory_limit=512M, max_input_vars=5000
+          tools: composer:v2
 
-    - name: Clone Moodle core
-      run: |
-        git clone -b ${{ matrix.moodle-branch }} --depth 1 https://github.com/moodle/moodle.git moodle
-        cp -r plugin moodle/mod/quiz/accessrule/attemptpassword
+      - name: Setup System Locales
+        run: |
+          sudo locale-gen en_AU.UTF-8
+          sudo update-locale
 
-    - name: Run PHP linting
-      run: find moodle/mod/quiz/accessrule/attemptpassword -name "*.php" -print0 | xargs -0 -n1 php -l
+      - name: Install moodle-plugin-ci
+        run: |
+          composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4
+          echo "$(cd ci/bin; pwd)" >> $GITHUB_PATH
+          echo "$(cd ci/vendor/bin; pwd)" >> $GITHUB_PATH
+
+      # تم تعديل المسار هنا لـ quizaccess
+      - name: Initialize moodle-plugin-ci
+        run: |
+          moodle-plugin-ci install --plugin quizaccess/attemptpassword --db-host=127.0.0.1 --db-user=postgres --db-name=moodle_ci_db --db-pass="" --db-type=pgsql
+        env:
+          MOODLE_BRANCH: ${{ matrix.moodle-branch }}
+
+      - name: Moodle Code Checker
+        run: moodle-plugin-ci codechecker quizaccess/attemptpassword
+
+      - name: PHP Mass Detector
+        run: moodle-plugin-ci phpmd quizaccess/attemptpassword
+
+      - name: PHP Lint
+        run: moodle-plugin-ci phplint quizaccess/attemptpassword
+
+      - name: PHPUnit tests
+        run: moodle-plugin-ci phpunit
