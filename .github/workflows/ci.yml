@@ -32,17 +32,17 @@ jobs:
           --health-retries 5
 
     steps:
+      # تم تعديل المسار هنا لـ quizaccess ليتوافق مع نوع إضافتك الفعلي
       - name: Check out repository
         uses: actions/checkout@v3
         with:
-          path: qtype/attemptpassword
+          path: quizaccess/attemptpassword
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           extensions: mbstring, pgsql, mysqli, gd, xml, intl, soap, zip
-          # الحل هنا: زودنا max_input_vars=5000 لإرضاء متطلبات مودل الحديث
           ini-values: max_execution_time=600, memory_limit=512M, max_input_vars=5000
           tools: composer:v2
 
@@ -57,20 +57,21 @@ jobs:
           echo "$(cd ci/bin; pwd)" >> $GITHUB_PATH
           echo "$(cd ci/vendor/bin; pwd)" >> $GITHUB_PATH
 
+      # تم تعديل المسار هنا لـ quizaccess
       - name: Initialize moodle-plugin-ci
         run: |
-          moodle-plugin-ci install --plugin qtype/attemptpassword --db-host=127.0.0.1 --db-user=postgres --db-name=moodle_ci_db --db-pass="" --db-type=pgsql
+          moodle-plugin-ci install --plugin quizaccess/attemptpassword --db-host=127.0.0.1 --db-user=postgres --db-name=moodle_ci_db --db-pass="" --db-type=pgsql
         env:
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
 
       - name: Moodle Code Checker
-        run: moodle-plugin-ci codechecker qtype/attemptpassword
+        run: moodle-plugin-ci codechecker quizaccess/attemptpassword
 
       - name: PHP Mass Detector
-        run: moodle-plugin-ci phpmd qtype/attemptpassword
+        run: moodle-plugin-ci phpmd quizaccess/attemptpassword
 
       - name: PHP Lint
-        run: moodle-plugin-ci phplint qtype/attemptpassword
+        run: moodle-plugin-ci phplint quizaccess/attemptpassword
 
       - name: PHPUnit tests
         run: moodle-plugin-ci phpunit
