@@ -18,7 +18,7 @@
  * Backup code for the quizaccess_attemptpassword plugin.
  *
  * @package    quizaccess_attemptpassword
- * @copyright  2026 Mahmoud
+  * @copyright  2026 Mahmoud Salem
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -29,7 +29,7 @@ require_once($CFG->dirroot . '/mod/quiz/backup/moodle2/backup_mod_quiz_access_su
 /**
  * Provides the information to backup the attemptpassword quiz access plugin.
  *
- * @copyright  2026 Mahmoud
+  * @copyright  2026 Mahmoud Salem
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class backup_quizaccess_attemptpassword_subplugin extends backup_mod_quiz_access_subplugin {

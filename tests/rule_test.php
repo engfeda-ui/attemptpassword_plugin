@@ -18,7 +18,7 @@
  * Unit tests for the quizaccess_attemptpassword plugin.
  *
  * @package    quizaccess_attemptpassword
- * @copyright  2026 Mahmoud
+  * @copyright  2026 Mahmoud Salem
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -34,7 +34,7 @@ require_once($CFG->dirroot . '/mod/quiz/accessrule/attemptpassword/rule.php');
 /**
  * Unit tests for the quizaccess_attemptpassword plugin.
  *
- * @copyright  2026 Mahmoud
+  * @copyright  2026 Mahmoud Salem
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class rule_test extends advanced_testcase {

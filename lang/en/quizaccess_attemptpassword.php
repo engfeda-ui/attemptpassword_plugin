@@ -18,7 +18,7 @@
  * Strings for the quizaccess_attemptpassword plugin.
  *
  * @package    quizaccess_attemptpassword
- * @copyright  2026 Mahmoud
+  * @copyright  2026 Mahmoud Salem
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
