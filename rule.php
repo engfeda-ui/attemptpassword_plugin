@@ -43,7 +43,6 @@ require_once($CFG->dirroot . '/mod/quiz/locallib.php');
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class quizaccess_attemptpassword extends quiz_access_rule_base {
-
     /**
      * Return an appropriately configured instance of this rule, if it is applicable
      * to the given quiz, otherwise return null.
@@ -71,13 +70,23 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
         $quizform,
         \MoodleQuickForm $mform
     ) {
-        $mform->addElement('select', 'attemptpassword_genmethod', get_string('genmethod', 'quizaccess_attemptpassword'), [
-            'manual' => get_string('genmethod_manual', 'quizaccess_attemptpassword'),
-            'random' => get_string('genmethod_random', 'quizaccess_attemptpassword'),
-        ]);
+        $mform->addElement(
+            'select',
+            'attemptpassword_genmethod',
+            get_string('genmethod', 'quizaccess_attemptpassword'),
+            [
+                'manual' => get_string('genmethod_manual', 'quizaccess_attemptpassword'),
+                'random' => get_string('genmethod_random', 'quizaccess_attemptpassword'),
+            ]
+        );
         $mform->setDefault('attemptpassword_genmethod', 'manual');
 
-        $mform->addElement('text', 'attemptpassword_passwords', get_string('attemptpassword', 'quizaccess_attemptpassword'), ['size' => 60]);
+        $mform->addElement(
+            'text',
+            'attemptpassword_passwords',
+            get_string('attemptpassword', 'quizaccess_attemptpassword'),
+            ['size' => 60]
+        );
         $mform->setType('attemptpassword_passwords', PARAM_RAW);
         $mform->addHelpButton('attemptpassword_passwords', 'attemptpassword', 'quizaccess_attemptpassword');
     }
@@ -148,7 +157,7 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
         return [
             'attpass.genmethod AS attemptpassword_genmethod, attpass.passwords AS attemptpassword_passwords',
             'LEFT JOIN {quizaccess_attemptpassword} attpass ON attpass.quizid = quiz.id',
-            []
+            [],
         ];
     }
 
@@ -215,7 +224,11 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
     public function add_preflight_check_form_fields($quizform, \MoodleQuickForm $mform, $attemptid) {
         $attemptnum = $this->get_attempt_number($attemptid);
 
-        $mform->addElement('passwordunmask', 'attemptpassword_entry', get_string('enterpasswordforattempt', 'quizaccess_attemptpassword', $attemptnum));
+        $mform->addElement(
+            'passwordunmask',
+            'attemptpassword_entry',
+            get_string('enterpasswordforattempt', 'quizaccess_attemptpassword', $attemptnum)
+        );
         $mform->setType('attemptpassword_entry', PARAM_RAW);
     }
 
