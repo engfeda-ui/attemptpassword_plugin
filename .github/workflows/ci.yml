@@ -36,7 +36,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
         with:
-          path: local/attemptpassword
+          path: qtype/attemptpassword
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -46,26 +46,29 @@ jobs:
           ini-values: max_execution_time=600, memory_limit=512M
           tools: composer:v2
 
-      # هنا الحل السحري لتثبيت الأداة وإضافتها للمسار علشان الـ Runner يشوفها
+      # التعديل الجديد هنا: تظبيط الـ Stability لتفادي خطأ الـ Composer
       - name: Install moodle-plugin-ci
         run: |
-          composer global require moodle-plugin-ci/cli:^3
+          composer global config minimum-stability dev
+          composer global config prefer-stable true
+          composer global require moodle-plugin-ci/cli:^3 --no-interaction --update-with-dependencies
           echo "$(composer global config bin-dir --absolute)" >> $GITHUB_PATH
 
+      # التعديل هنا: خيار الـ --plugin بقى يشاور على qtype بدلاً من local
       - name: Initialize moodle-plugin-ci
         run: |
-          moodle-plugin-ci install --plugin local/attemptpassword --dbtype pgsql --dbhost 127.0.0.1 --dbuser postgres --dbname moodle --dbpass ""
+          moodle-plugin-ci install --plugin qtype/attemptpassword --dbtype pgsql --dbhost 127.0.0.1 --dbuser postgres --dbname moodle --dbpass ""
         env:
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
 
       - name: Moodle Code Checker
-        run: moodle-plugin-ci codechecker local/attemptpassword
+        run: moodle-plugin-ci codechecker qtype/attemptpassword
 
       - name: PHP Mass Detector
-        run: moodle-plugin-ci phpmd local/attemptpassword
+        run: moodle-plugin-ci phpmd qtype/attemptpassword
 
       - name: PHP Lint
-        run: moodle-plugin-ci phplint local/attemptpassword
+        run: moodle-plugin-ci phplint qtype/attemptpassword
 
       - name: PHPUnit tests
         run: moodle-plugin-ci phpunit
