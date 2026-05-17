@@ -1,4 +1,4 @@
-# GitHub Actions workflow for Moodle plugin CI.
+# GitHub Actions workflow for Moodle plugin CI (Modern Versions Focus).
 name: CI/CD Support
 
 on:
@@ -14,8 +14,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: ['7.4', '8.0', '8.1', '8.2']
-        moodle-branch: ['MOODLE_39_STABLE', 'MOODLE_400_STABLE', 'MOODLE_401_STABLE', 'MOODLE_405_STABLE']
+        # التركيز على إصدارات PHP المتوافقة مع مودل 4.5
+        php: ['8.1', '8.2', '8.3']
+        # التركيز على مودل 4.5 (وتقدر تزود 'master' لو حابب تختبر على النسخ المستقبلية)
+        moodle-branch: ['MOODLE_405_STABLE']
 
     services:
       postgres:
@@ -45,16 +47,15 @@ jobs:
           ini-values: max_execution_time=600, memory_limit=512M
           tools: composer:v2
 
-      # --- الخطوة الجديدة لحل مشكلة الـ Locale ---
       - name: Setup System Locales
         run: |
           sudo locale-gen en_AU.UTF-8
           sudo update-locale
-      # ------------------------------------------
 
+      # تحديث الأداة للإصدار الرابع لدعم أحدث إصدارات مودل
       - name: Install moodle-plugin-ci
         run: |
-          composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^3
+          composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4
           echo "$(cd ci/bin; pwd)" >> $GITHUB_PATH
           echo "$(cd ci/vendor/bin; pwd)" >> $GITHUB_PATH
 
