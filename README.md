@@ -16,9 +16,11 @@ Please refer to the official documentation: [Installing Plugins](https://docs.mo
 2. Place the `attemptpassword` directory into `mod/quiz/accessrule/`.
 3. Visit **Site administration > Notifications** to complete the installation.
 
-## Requirements
+## Requirements & Compatibility
 
-- Moodle 3.9 (2020060900) or later (fully supported up to Moodle 4.5+).
+- **Moodle Compatibility:** Moodle 3.9 up to Moodle 5.0+ (Fully compatible with Moodle 4.5 / `MOODLE_405_STABLE` and Moodle 5.0+).
+- **PHP Compatibility:** PHP 8.1, 8.2, and 8.3.
+- **Database:** PostgreSQL (13+) or MySQL/MariaDB.
 
 ## Features & Status
 
