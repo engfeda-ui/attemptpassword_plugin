@@ -18,7 +18,7 @@
  * Privacy Subsystem implementation for quizaccess_attemptpassword.
  *
  * @package    quizaccess_attemptpassword
-  * @copyright  2026 Mahmoud Salem
+ * @copyright  2026 Mahmoud Salem
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -27,7 +27,7 @@ namespace quizaccess_attemptpassword\privacy;
 /**
  * Privacy Subsystem implementation for quizaccess_attemptpassword.
  *
-  * @copyright  2026 Mahmoud Salem
+ * @copyright  2026 Mahmoud Salem
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements \core_privacy\local\metadata\null_provider {
