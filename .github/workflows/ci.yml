@@ -14,9 +14,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # التركيز على إصدارات PHP المتوافقة مع مودل 4.5
         php: ['8.1', '8.2', '8.3']
-        # التركيز على مودل 4.5 (وتقدر تزود 'master' لو حابب تختبر على النسخ المستقبلية)
         moodle-branch: ['MOODLE_405_STABLE']
 
     services:
@@ -44,7 +42,8 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           extensions: mbstring, pgsql, mysqli, gd, xml, intl, soap, zip
-          ini-values: max_execution_time=600, memory_limit=512M
+          # الحل هنا: زودنا max_input_vars=5000 لإرضاء متطلبات مودل الحديث
+          ini-values: max_execution_time=600, memory_limit=512M, max_input_vars=5000
           tools: composer:v2
 
       - name: Setup System Locales
@@ -52,7 +51,6 @@ jobs:
           sudo locale-gen en_AU.UTF-8
           sudo update-locale
 
-      # تحديث الأداة للإصدار الرابع لدعم أحدث إصدارات مودل
       - name: Install moodle-plugin-ci
         run: |
           composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4
