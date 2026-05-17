@@ -23,7 +23,6 @@ jobs:
         env:
           POSTGRES_USER: postgres
           POSTGRES_HOST_AUTH_METHOD: trust
-          # شيلنا POSTGRES_DB من هنا علشان الأداة تكريتها بنفسها بدون تعارض
         ports:
           - 5432:5432
         options: >-
@@ -52,9 +51,10 @@ jobs:
           echo "$(cd ci/bin; pwd)" >> $GITHUB_PATH
           echo "$(cd ci/vendor/bin; pwd)" >> $GITHUB_PATH
 
+      # الحل النهائي هنا: تغيير اسم قاعدة البيانات لـ moodle_ci_db
       - name: Initialize moodle-plugin-ci
         run: |
-          moodle-plugin-ci install --plugin qtype/attemptpassword --db-host=127.0.0.1 --db-user=postgres --db-name=moodle --db-pass="" --db-type=pgsql
+          moodle-plugin-ci install --plugin qtype/attemptpassword --db-host=127.0.0.1 --db-user=postgres --db-name=moodle_ci_db --db-pass="" --db-type=pgsql
         env:
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
 
