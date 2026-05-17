@@ -45,13 +45,19 @@ jobs:
           ini-values: max_execution_time=600, memory_limit=512M
           tools: composer:v2
 
+      # --- الخطوة الجديدة لحل مشكلة الـ Locale ---
+      - name: Setup System Locales
+        run: |
+          sudo locale-gen en_AU.UTF-8
+          sudo update-locale
+      # ------------------------------------------
+
       - name: Install moodle-plugin-ci
         run: |
           composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^3
           echo "$(cd ci/bin; pwd)" >> $GITHUB_PATH
           echo "$(cd ci/vendor/bin; pwd)" >> $GITHUB_PATH
 
-      # الحل النهائي هنا: تغيير اسم قاعدة البيانات لـ moodle_ci_db
       - name: Initialize moodle-plugin-ci
         run: |
           moodle-plugin-ci install --plugin qtype/attemptpassword --db-host=127.0.0.1 --db-user=postgres --db-name=moodle_ci_db --db-pass="" --db-type=pgsql
