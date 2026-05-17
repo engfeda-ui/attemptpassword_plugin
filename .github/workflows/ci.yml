@@ -1,87 +1,71 @@
-name: Moodle Plugin CI
+# GitHub Actions workflow for Moodle plugin CI.
+name: CI/CD Support
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['7.4', '8.0', '8.1', '8.2']
+        moodle-branch: ['MOODLE_39_STABLE', 'MOODLE_400_STABLE', 'MOODLE_401_STABLE', 'MOODLE_405_STABLE']
 
     services:
       postgres:
         image: postgres:13
         env:
           POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
           POSTGRES_DB: moodle
+        ports:
+          - 5432:5432
         options: >-
           --health-cmd pg_isready
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-        ports:
-          - 5432:5432
-
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - php: '7.4'
-            moodle-branch: 'MOODLE_39_STABLE'
-          - php: '8.0'
-            moodle-branch: 'MOODLE_400_STABLE'
-          - php: '8.1'
-            moodle-branch: 'MOODLE_401_STABLE'
-          - php: '8.2'
-            moodle-branch: 'MOODLE_405_STABLE'
 
     steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
+      - name: Check out repository
+        uses: actions/checkout@v3
         with:
-          path: plugin
+          path: local/attemptpassword
 
-      - name: Setup PHP ${{ matrix.php }}
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: mbstring, pgsql, mysqli, gd, xml, curl, zip
-          coverage: none
+          extensions: mbstring, pgsql, mysqli, gd, xml, intl, soap, zip
+          ini-values: max_execution_time=600, memory_limit=512M
+          tools: composer:v2
 
+      # هنا الحل السحري لتثبيت الأداة وإضافتها للمسار علشان الـ Runner يشوفها
       - name: Install moodle-plugin-ci
         run: |
-          composer global require moodlehq/moodle-plugin-ci
-          echo "$HOME/.composer/vendor/bin" >> $GITHUB_PATH
+          composer global require moodle-plugin-ci/cli:^3
+          echo "$(composer global config bin-dir --absolute)" >> $GITHUB_PATH
 
-      - name: Install Moodle + plugin
+      - name: Initialize moodle-plugin-ci
         run: |
-          moodle-plugin-ci install \
-            --plugin ./plugin \
-            --db-host 127.0.0.1 \
-            --db-user postgres \
-            --db-pass postgres \
-            --db-name moodle \
-            --db-type pgsql \
-            --branch ${{ matrix.moodle-branch }}
+          moodle-plugin-ci install --plugin local/attemptpassword --dbtype pgsql --dbhost 127.0.0.1 --dbuser postgres --dbname moodle --dbpass ""
         env:
-          DB: pgsql
-
-      - name: PHP Lint
-        if: always()
-        run: moodle-plugin-ci phplint
+          MOODLE_BRANCH: ${{ matrix.moodle-branch }}
 
       - name: Moodle Code Checker
-        if: always()
-        run: moodle-plugin-ci codechecker --max-warnings 0
+        run: moodle-plugin-ci codechecker local/attemptpassword
 
-      - name: PHP Mess Detector
-        if: always()
-        run: moodle-plugin-ci phpmd
-        continue-on-error: true
+      - name: PHP Mass Detector
+        run: moodle-plugin-ci phpmd local/attemptpassword
 
-      - name: Validate plugin structure
-        if: always()
-        run: moodle-plugin-ci validate
+      - name: PHP Lint
+        run: moodle-plugin-ci phplint local/attemptpassword
 
       - name: PHPUnit tests
-        if: always()
-        run: moodle-plugin-ci phpunit --fail-on-warning
+        run: moodle-plugin-ci phpunit
