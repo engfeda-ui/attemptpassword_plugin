@@ -24,9 +24,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026051500;
+$plugin->version   = 2026051900;
 $plugin->requires  = 2020060900;
 $plugin->supported = [39, 405];
 $plugin->component = 'quizaccess_attemptpassword';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = 'v1.0.0';
+$plugin->release   = 'v1.0.1';
