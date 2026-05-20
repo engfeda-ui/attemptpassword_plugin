@@ -24,9 +24,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026051900;
-$plugin->requires  = 2020060900;
-$plugin->supported = [39, 405];
+$plugin->version   = 2026051901;
+$plugin->requires  = 2022041900; // Moodle 4.0 minimum.
+$plugin->supported = [400, 500]; // Moodle 4.0 – 5.0.
 $plugin->component = 'quizaccess_attemptpassword';
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = 'v1.0.1';
+$plugin->release   = 'v1.1.0';

@@ -36,3 +36,4 @@ $string['attemptpassword_help'] = 'For manual entry, enter passwords separated b
 
 $string['enterpasswordforattempt'] = 'To start Attempt {$a}, please enter the password for this specific attempt:';
 $string['wrongpassword'] = 'The password you entered is incorrect for this attempt.';
+$string['passwordcountmismatch'] = 'Warning: you have entered {$a->passwords} password(s) but the quiz allows {$a->attempts} attempt(s). Each attempt needs its own password. Please add or remove passwords to match the number of allowed attempts.';

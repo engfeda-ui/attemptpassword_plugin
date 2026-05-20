@@ -138,6 +138,44 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
     }
 
     /**
+     * Validate the quiz settings form fields added by this rule.
+     *
+     * Warns the teacher if the number of passwords provided does not match
+     * the number of allowed attempts configured for the quiz.
+     *
+     * @param array $errors  Existing errors array (may already contain entries).
+     * @param array $data    Submitted form data.
+     * @param array $files   Submitted files (unused).
+     * @param object $quizform The quiz settings form object.
+     * @return array Updated errors array.
+     */
+    public static function validate_settings_form_fields(array $errors, array $data, $files, $quizform) {
+        $genmethod = isset($data['attemptpassword_genmethod']) ? $data['attemptpassword_genmethod'] : 'manual';
+        $passwords = isset($data['attemptpassword_passwords']) ? trim($data['attemptpassword_passwords']) : '';
+
+        // Only validate manual entry — random passwords are auto-generated to match.
+        if ($genmethod !== 'manual' || empty($passwords)) {
+            return $errors;
+        }
+
+        $parts = array_filter(array_map('trim', explode(',', $passwords)));
+        $numpasswords = count($parts);
+
+        // Retrieve the configured attempt limit (0 = unlimited).
+        $maxattempts = isset($data['attempts']) ? (int) $data['attempts'] : 0;
+
+        if ($maxattempts > 0 && $numpasswords !== $maxattempts) {
+            $errors['attemptpassword_passwords'] = get_string(
+                'passwordcountmismatch',
+                'quizaccess_attemptpassword',
+                ['passwords' => $numpasswords, 'attempts' => $maxattempts]
+            );
+        }
+
+        return $errors;
+    }
+
+    /**
      * Delete any rule-specific settings when the quiz is deleted.
      *
      * @param object $quiz the data from the database.
