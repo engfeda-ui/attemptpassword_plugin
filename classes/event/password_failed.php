@@ -16,8 +16,6 @@
 
 namespace quizaccess_attemptpassword\event;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Event fired when a user enters an incorrect attempt-specific password.
  *
@@ -26,7 +24,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class password_failed extends \core\event\base {
-
     /**
      * Init method.
      */
@@ -44,7 +41,9 @@ class password_failed extends \core\event\base {
     public function get_description() {
         $attemptnum = isset($this->other['attemptnum']) ? $this->other['attemptnum'] : 1;
         $failedcount = isset($this->other['failedcount']) ? $this->other['failedcount'] : 1;
-        return "The user with id '{$this->userid}' failed to enter the correct password for quiz with id '{$this->objectid}' at attempt number '{$attemptnum}'. Failed count: {$failedcount}.";
+        return "The user with id '{$this->userid}' failed to enter the correct " .
+            "password for quiz with id '{$this->objectid}' at attempt number '{$attemptnum}'. " .
+            "Failed count: {$failedcount}.";
     }
 
     /**

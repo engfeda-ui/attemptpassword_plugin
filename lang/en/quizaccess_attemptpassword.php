@@ -43,4 +43,3 @@ $string['lockoutmessage'] = 'Too many failed password attempts. You have been lo
 $string['lockoutwarning'] = 'Caution: you have entered an incorrect password {$a->failed} times out of {$a->max}. After {$a->max} incorrect entries, you will be locked out for 5 minutes.';
 $string['copytoclipboard'] = 'Copy Passwords to Clipboard';
 $string['copied'] = 'Copied!';
-

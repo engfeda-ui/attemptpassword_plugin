@@ -16,8 +16,6 @@
 
 namespace quizaccess_attemptpassword\event;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Event fired when a user successfully enters an attempt-specific password.
  *
@@ -26,7 +24,6 @@ defined('MOODLE_INTERNAL') || die();
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class password_verified extends \core\event\base {
-
     /**
      * Init method.
      */
@@ -43,7 +40,8 @@ class password_verified extends \core\event\base {
      */
     public function get_description() {
         $attemptnum = isset($this->other['attemptnum']) ? $this->other['attemptnum'] : 1;
-        return "The user with id '{$this->userid}' successfully verified the password for quiz with id '{$this->objectid}' for attempt number '{$attemptnum}'.";
+        return "The user with id '{$this->userid}' successfully verified the " .
+            "password for quiz with id '{$this->objectid}' for attempt number '{$attemptnum}'.";
     }
 
     /**

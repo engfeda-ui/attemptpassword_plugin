@@ -258,7 +258,7 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
         $record = $DB->get_record('quizaccess_attemptpass_log', [
             'quizid' => $this->quiz->id,
             'userid' => $USER->id,
-            'attemptnum' => $attemptnum
+            'attemptnum' => $attemptnum,
         ]);
 
         if ($record && $record->lockouttime > time()) {
@@ -340,7 +340,7 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
                 $record = $DB->get_record('quizaccess_attemptpass_log', [
                     'quizid' => $this->quiz->id,
                     'userid' => $USER->id,
-                    'attemptnum' => $attemptnum
+                    'attemptnum' => $attemptnum,
                 ]);
 
                 if ($record) {
@@ -384,7 +384,7 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
                 $DB->delete_records('quizaccess_attemptpass_log', [
                     'quizid' => $this->quiz->id,
                     'userid' => $USER->id,
-                    'attemptnum' => $attemptnum
+                    'attemptnum' => $attemptnum,
                 ]);
 
                 $event = \quizaccess_attemptpassword\event\password_verified::create([
@@ -422,7 +422,7 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
         $DB->delete_records('quizaccess_attemptpass_log', [
             'quizid' => $this->quiz->id,
             'userid' => $USER->id,
-            'attemptnum' => $attemptnum
+            'attemptnum' => $attemptnum,
         ]);
     }
 }

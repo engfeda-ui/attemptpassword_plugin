@@ -21,9 +21,6 @@
  * @copyright  2026 Mahmoud Salem
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Upgrade code for the quizaccess_attemptpassword plugin.
  *
