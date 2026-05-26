@@ -4,7 +4,7 @@
 [![PHP Version](https://img.shields.io/badge/PHP-8.1%20%7C%208.2%20%7C%208.3-blue.svg?style=flat-square)](https://php.net)
 [![Database](https://img.shields.io/badge/Database-PostgreSQL%20%7C%20MySQL%20%7C%20MariaDB-purple.svg?style=flat-square)](https://docs.moodle.org)
 [![License](https://img.shields.io/badge/License-GPL%20v3-green.svg?style=flat-square)](http://www.gnu.org/copyleft/gpl.html)
-[![Version](https://img.shields.io/badge/Version-v1.1.0-blue.svg?style=flat-square)](https://github.com)
+[![Version](https://img.shields.io/badge/Version-v1.2.0-blue.svg?style=flat-square)](https://github.com)
 
 A professional Moodle quiz access rule plugin that gives course teachers granular control over quiz security by enabling unique, attempt-specific passwords.
 
@@ -65,6 +65,12 @@ When quizzes allow multiple attempts, students who fail and are granted a reatte
 ---
 
 ## 📋 Changelog
+
+### v1.2.0 — 2026-05-25
+- **New:** Failed Password Attempts Lockout Protection (Brute Force Prevention) — blocks user for 5 minutes after 5 consecutive incorrect attempts.
+- **New:** Audit logs and security events — fires `\quizaccess_attemptpassword\event\password_failed` and `\quizaccess_attemptpassword\event\password_verified` to Moodle's standard log store to track who entered incorrect passwords and how many times.
+- **New:** "Copy to Clipboard" button in quiz settings page for easy distribution of auto-generated passwords.
+- **New:** Database table `quizaccess_attemptpass_log` to securely store failed counts and lockout timestamps on the server side (immune to private browsing or cookie clearing).
 
 ### v1.1.0 — 2026-05-19
 - **New:** `validate_settings_form_fields()` — warns the teacher when the number of manually entered passwords does not match the number of allowed quiz attempts.

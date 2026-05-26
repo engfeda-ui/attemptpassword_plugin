@@ -85,10 +85,25 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
             'text',
             'attemptpassword_passwords',
             get_string('attemptpassword', 'quizaccess_attemptpassword'),
-            ['size' => 60]
+            ['size' => 60, 'id' => 'id_attemptpassword_passwords']
         );
         $mform->setType('attemptpassword_passwords', PARAM_RAW);
         $mform->addHelpButton('attemptpassword_passwords', 'attemptpassword', 'quizaccess_attemptpassword');
+
+        // Add the Copy to Clipboard button right after the text field.
+        $buttonhtml = '<div class="form-group row"><div class="col-md-3"></div><div class="col-md-9">' .
+            '<button type="button" class="btn btn-secondary btn-sm" id="copy-attempt-passwords-btn" onclick="' .
+            'var f = document.getElementById(\'id_attemptpassword_passwords\');' .
+            'if(f && f.value){' .
+                'navigator.clipboard.writeText(f.value).then(function(){' .
+                    'var b = document.getElementById(\'copy-attempt-passwords-btn\');' .
+                    'var t = b.innerText;' .
+                    'b.innerText = ' . json_encode(get_string('copied', 'quizaccess_attemptpassword')) . ';' .
+                    'setTimeout(function(){ b.innerText = t; }, 2000);' .
+                '});' .
+            '}' .
+            '">' . get_string('copytoclipboard', 'quizaccess_attemptpassword') . '</button></div></div>';
+        $mform->addElement('html', $buttonhtml);
     }
 
     /**
@@ -225,6 +240,36 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
     }
 
     /**
+     * Whether or not a user should be allowed to start a new attempt at this quiz now.
+     *
+     * @param int $numprevattempts the number of previous attempts this user has made.
+     * @param object $lastattempt information about the user's last completed attempt.
+     * @return string|false false if access should be allowed, a message explaining the
+     * reason if access should be prevented.
+     */
+    public function prevent_new_attempt($numprevattempts, $lastattempt) {
+        global $DB, $USER;
+
+        if (empty($this->quiz->attemptpassword_passwords)) {
+            return false;
+        }
+
+        $attemptnum = $this->get_attempt_number($lastattempt ? $lastattempt->id : null);
+        $record = $DB->get_record('quizaccess_attemptpass_log', [
+            'quizid' => $this->quiz->id,
+            'userid' => $USER->id,
+            'attemptnum' => $attemptnum
+        ]);
+
+        if ($record && $record->lockouttime > time()) {
+            $minutes = ceil(($record->lockouttime - time()) / 60);
+            return get_string('lockoutmessage', 'quizaccess_attemptpassword', $minutes);
+        }
+
+        return false;
+    }
+
+    /**
      * Whether or not the user needs to do a preflight check before starting this attempt.
      *
      * @param int|null $attemptid
@@ -280,6 +325,7 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
      * @return array
      */
     public function validate_preflight_check($data, $files, $errors, $attemptid) {
+        global $DB, $USER;
         $attemptnum = $this->get_attempt_number($attemptid);
 
         $passwords = explode(',', $this->quiz->attemptpassword_passwords);
@@ -288,13 +334,74 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
 
         $entered = isset($data['attemptpassword_entry']) ? trim($data['attemptpassword_entry']) : '';
 
-        if ($expected !== '' && $entered !== $expected) {
-            $errors['attemptpassword_entry'] = get_string('wrongpassword', 'quizaccess_attemptpassword');
-        } else if ($expected !== '' && $entered === $expected) {
-            // Mark session key as passed on successful validation.
-            global $SESSION;
-            $sesskey = 'quizaccess_attemptpassword_' . $this->quiz->id . '_attempt_' . $attemptnum;
-            $SESSION->$sesskey = true;
+        if ($expected !== '') {
+            if ($entered !== $expected) {
+                // Wrong password - increment failed count and trigger lockout if reached.
+                $record = $DB->get_record('quizaccess_attemptpass_log', [
+                    'quizid' => $this->quiz->id,
+                    'userid' => $USER->id,
+                    'attemptnum' => $attemptnum
+                ]);
+
+                if ($record) {
+                    $record->failedcount++;
+                    if ($record->failedcount >= 5) {
+                        $record->lockouttime = time() + 300; // 5 minutes lockout
+                    }
+                    $DB->update_record('quizaccess_attemptpass_log', $record);
+                    $failedcount = $record->failedcount;
+                } else {
+                    $record = new \stdClass();
+                    $record->quizid = $this->quiz->id;
+                    $record->userid = $USER->id;
+                    $record->attemptnum = $attemptnum;
+                    $record->failedcount = 1;
+                    $record->lockouttime = 0;
+                    $DB->insert_record('quizaccess_attemptpass_log', $record);
+                    $failedcount = 1;
+                }
+
+                // Log failed security event.
+                $event = \quizaccess_attemptpassword\event\password_failed::create([
+                    'context' => \context_module::instance($this->quizobj->get_cmid()),
+                    'objectid' => $this->quizobj->get_quizid(),
+                    'relateduserid' => $USER->id,
+                    'other' => [
+                        'attemptnum' => $attemptnum,
+                        'failedcount' => $failedcount,
+                    ],
+                ]);
+                $event->trigger();
+
+                if ($failedcount >= 5) {
+                    $errors['attemptpassword_entry'] = get_string('lockoutmessage', 'quizaccess_attemptpassword', 5);
+                } else {
+                    $errors['attemptpassword_entry'] = get_string('wrongpassword', 'quizaccess_attemptpassword') . ' ' .
+                        get_string('lockoutwarning', 'quizaccess_attemptpassword', ['failed' => $failedcount, 'max' => 5]);
+                }
+            } else {
+                // Correct password - clear log and trigger verified event.
+                $DB->delete_records('quizaccess_attemptpass_log', [
+                    'quizid' => $this->quiz->id,
+                    'userid' => $USER->id,
+                    'attemptnum' => $attemptnum
+                ]);
+
+                $event = \quizaccess_attemptpassword\event\password_verified::create([
+                    'context' => \context_module::instance($this->quizobj->get_cmid()),
+                    'objectid' => $this->quizobj->get_quizid(),
+                    'relateduserid' => $USER->id,
+                    'other' => [
+                        'attemptnum' => $attemptnum,
+                    ],
+                ]);
+                $event->trigger();
+
+                // Mark session key as passed on successful validation.
+                global $SESSION;
+                $sesskey = 'quizaccess_attemptpassword_' . $this->quiz->id . '_attempt_' . $attemptnum;
+                $SESSION->$sesskey = true;
+            }
         }
 
         return $errors;
@@ -306,9 +413,16 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
      * @param int|null $attemptid
      */
     public function notify_preflight_check_passed($attemptid) {
-        global $SESSION;
+        global $SESSION, $DB, $USER;
         $attemptnum = $this->get_attempt_number($attemptid);
         $sesskey = 'quizaccess_attemptpassword_' . $this->quiz->id . '_attempt_' . $attemptnum;
         $SESSION->$sesskey = true;
+
+        // Also clear failed password attempts for safety.
+        $DB->delete_records('quizaccess_attemptpass_log', [
+            'quizid' => $this->quiz->id,
+            'userid' => $USER->id,
+            'attemptnum' => $attemptnum
+        ]);
     }
 }

@@ -37,3 +37,10 @@ $string['attemptpassword_help'] = 'For manual entry, enter passwords separated b
 $string['enterpasswordforattempt'] = 'To start Attempt {$a}, please enter the password for this specific attempt:';
 $string['wrongpassword'] = 'The password you entered is incorrect for this attempt.';
 $string['passwordcountmismatch'] = 'Warning: you have entered {$a->passwords} password(s) but the quiz allows {$a->attempts} attempt(s). Each attempt needs its own password. Please add or remove passwords to match the number of allowed attempts.';
+$string['event_password_failed'] = 'Quiz password entry failed';
+$string['event_password_verified'] = 'Quiz password entry verified';
+$string['lockoutmessage'] = 'Too many failed password attempts. You have been locked out for {$a} minutes. Please try again later.';
+$string['lockoutwarning'] = 'Caution: you have entered an incorrect password {$a->failed} times out of {$a->max}. After {$a->max} incorrect entries, you will be locked out for 5 minutes.';
+$string['copytoclipboard'] = 'Copy Passwords to Clipboard';
+$string['copied'] = 'Copied!';
+
