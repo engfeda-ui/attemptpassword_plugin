@@ -118,3 +118,5 @@ attemptpassword/
 
 - **Copyright:** © 2026 Mahmoud Salem
 - **License:** [GNU GPL v3](http://www.gnu.org/copyleft/gpl.html) or later.
+
+
