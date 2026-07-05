@@ -80,4 +80,84 @@ class rule_test extends advanced_testcase {
         $errors = $rule->validate_preflight_check(['attemptpassword_entry' => 'pass1'], [], [], null);
         $this->assertArrayNotHasKey('attemptpassword_entry', $errors);
     }
+
+    public function test_attempt_specific_passwords() {
+        global $DB;
+
+        $this->resetAfterTest();
+
+        // Setup course and user.
+        $generator = $this->getDataGenerator();
+        $course = $generator->create_course();
+        $user = $generator->create_user();
+        $this->setUser($user);
+
+        $quizgenerator = $generator->get_plugin_generator('mod_quiz');
+
+        // Create quiz with 3 allowed attempts and distinct passwords.
+        $quiz = $quizgenerator->create_instance([
+            'course' => $course->id,
+            'attempts' => 3,
+            'attemptpassword_passwords' => 'pass1,pass2,pass3',
+        ]);
+        $quizobj = \quiz::create($quiz->id, $user->id);
+
+        $rule = \quizaccess_attemptpassword::make($quizobj, 0, false);
+        $this->assertInstanceOf(\quizaccess_attemptpassword::class, $rule);
+
+        // --- ATTEMPT 1 ---
+        // Validate password for Attempt 1.
+        $errors = $rule->validate_preflight_check(['attemptpassword_entry' => 'pass2'], [], [], null);
+        $this->assertArrayHasKey('attemptpassword_entry', $errors, 'Attempt 1 should reject pass2');
+
+        $errors = $rule->validate_preflight_check(['attemptpassword_entry' => 'pass1'], [], [], null);
+        $this->assertArrayNotHasKey('attemptpassword_entry', $errors, 'Attempt 1 should accept pass1');
+
+        // Simulate completing Attempt 1 in the database.
+        $attempt1 = new \stdClass();
+        $attempt1->quiz = $quiz->id;
+        $attempt1->userid = $user->id;
+        $attempt1->attempt = 1;
+        $attempt1->state = 'finished';
+        $attempt1->uniqueid = 101;
+        $attempt1->layout = '';
+        $attempt1->timecreated = time();
+        $attempt1->timemodified = time();
+        $DB->insert_record('quiz_attempts', $attempt1);
+
+        // --- ATTEMPT 2 ---
+        // Refresh/recreate quiz object to load updated attempts.
+        $quizobj = \quiz::create($quiz->id, $user->id);
+        $rule = \quizaccess_attemptpassword::make($quizobj, 0, false);
+
+        // Validate password for Attempt 2.
+        $errors = $rule->validate_preflight_check(['attemptpassword_entry' => 'pass1'], [], [], null);
+        $this->assertArrayHasKey('attemptpassword_entry', $errors, 'Attempt 2 should reject pass1');
+
+        $errors = $rule->validate_preflight_check(['attemptpassword_entry' => 'pass2'], [], [], null);
+        $this->assertArrayNotHasKey('attemptpassword_entry', $errors, 'Attempt 2 should accept pass2');
+
+        // Simulate completing Attempt 2.
+        $attempt2 = new \stdClass();
+        $attempt2->quiz = $quiz->id;
+        $attempt2->userid = $user->id;
+        $attempt2->attempt = 2;
+        $attempt2->state = 'finished';
+        $attempt2->uniqueid = 102;
+        $attempt2->layout = '';
+        $attempt2->timecreated = time();
+        $attempt2->timemodified = time();
+        $DB->insert_record('quiz_attempts', $attempt2);
+
+        // --- ATTEMPT 3 ---
+        $quizobj = \quiz::create($quiz->id, $user->id);
+        $rule = \quizaccess_attemptpassword::make($quizobj, 0, false);
+
+        // Validate password for Attempt 3.
+        $errors = $rule->validate_preflight_check(['attemptpassword_entry' => 'pass2'], [], [], null);
+        $this->assertArrayHasKey('attemptpassword_entry', $errors, 'Attempt 3 should reject pass2');
+
+        $errors = $rule->validate_preflight_check(['attemptpassword_entry' => 'pass3'], [], [], null);
+        $this->assertArrayNotHasKey('attemptpassword_entry', $errors, 'Attempt 3 should accept pass3');
+    }
 }
