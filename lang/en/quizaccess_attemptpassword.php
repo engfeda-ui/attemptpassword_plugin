@@ -25,7 +25,13 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'Attempt password';
-$string['privacy:metadata'] = 'The Attempt password plugin stores quiz settings but does not store personal user data.';
+$string['privacy:metadata'] = 'The Attempt password plugin stores quiz settings and failed attempt lockout logs.';
+$string['privacy:metadata:quizid'] = 'The ID of the quiz associated with the log entry.';
+$string['privacy:metadata:userid'] = 'The ID of the user who made the attempt.';
+$string['privacy:metadata:attemptnum'] = 'The attempt number on the quiz.';
+$string['privacy:metadata:failedcount'] = 'The count of failed password entry attempts.';
+$string['privacy:metadata:lockouttime'] = 'The time when the lockout expires.';
+$string['privacy:metadata:quizaccess_attemptpass_log'] = 'Database table storing the user failed attempts and lockout timers.';
 
 $string['genmethod'] = 'Password generation method';
 $string['genmethod_manual'] = 'Manual entry (comma-separated)';
