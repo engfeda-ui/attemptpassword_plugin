@@ -105,7 +105,7 @@ class rule_test extends advanced_testcase {
         $rule = \quizaccess_attemptpassword::make($quizobj, 0, false);
         $this->assertInstanceOf(\quizaccess_attemptpassword::class, $rule);
 
-        // --- ATTEMPT 1 ---
+        // Attempt 1.
         // Validate password for Attempt 1.
         $errors = $rule->validate_preflight_check(['attemptpassword_entry' => 'pass2'], [], [], null);
         $this->assertArrayHasKey('attemptpassword_entry', $errors, 'Attempt 1 should reject pass2');
@@ -125,7 +125,7 @@ class rule_test extends advanced_testcase {
         $attempt1->timemodified = time();
         $DB->insert_record('quiz_attempts', $attempt1);
 
-        // --- ATTEMPT 2 ---
+        // Attempt 2.
         // Refresh/recreate quiz object to load updated attempts.
         $quizobj = \quiz::create($quiz->id, $user->id);
         $rule = \quizaccess_attemptpassword::make($quizobj, 0, false);
@@ -149,7 +149,7 @@ class rule_test extends advanced_testcase {
         $attempt2->timemodified = time();
         $DB->insert_record('quiz_attempts', $attempt2);
 
-        // --- ATTEMPT 3 ---
+        // Attempt 3.
         $quizobj = \quiz::create($quiz->id, $user->id);
         $rule = \quizaccess_attemptpassword::make($quizobj, 0, false);
 

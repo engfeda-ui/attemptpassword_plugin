@@ -24,12 +24,6 @@
 
 namespace quizaccess_attemptpassword\privacy;
 
-/**
- * Privacy Subsystem implementation for quizaccess_attemptpassword.
- *
- * @copyright  2026 Mahmoud Salem
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\contextlist;
@@ -44,9 +38,8 @@ use core_privacy\local\request\approved_userlist;
  */
 class provider implements
     \core_privacy\local\metadata\provider,
-    \core_privacy\local\request\plugin\provider,
-    \core_privacy\local\request\core_userlist_provider {
-
+    \core_privacy\local\request\core_userlist_provider,
+    \core_privacy\local\request\plugin\provider {
     /**
      * Returns meta data about this system.
      *
@@ -228,7 +221,7 @@ class provider implements
         }
 
         $userids = $userlist->get_userids();
-        list($insql, $inparams) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        [$insql, $inparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
 
         $params = array_merge(['quizid' => $cm->instance], $inparams);
         $DB->delete_records_select('quizaccess_attemptpass_log', "quizid = :quizid AND userid {$insql}", $params);
