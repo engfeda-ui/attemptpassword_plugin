@@ -46,3 +46,5 @@ $string['privacy:metadata:attemptnum'] = 'رقم محاولة الاختبار.'
 $string['privacy:metadata:failedcount'] = 'عدد مرات إدخال كلمة المرور الخاطئة.';
 $string['privacy:metadata:lockouttime'] = 'توقيت انتهاء حظر الدخول للعملية.';
 $string['privacy:metadata:quizaccess_attemptpass_log'] = 'جدول قاعدة البيانات الذي يحفظ محاولات الطلاب الخاطئة وسجلات حظر الدخول المؤقت.';
+$string['event_password_failed'] = 'فشل إدخال كلمة مرور الاختبار';
+$string['event_password_verified'] = 'تم التحقق من كلمة مرور الاختبار بنجاح';
