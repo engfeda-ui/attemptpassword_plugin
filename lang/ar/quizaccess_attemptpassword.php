@@ -18,7 +18,7 @@
  * Arabic language strings for quizaccess_attemptpassword.
  *
  * @package   quizaccess_attemptpassword
- * @copyright 2026 Mahmoud Salem <m.salem@ewa.bh>
+ * @copyright 2026 Mahmoud Salem <eng.feda@gmail.com>
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
