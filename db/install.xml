@@ -16,7 +16,7 @@
         <KEY NAME="quizid" TYPE="foreign-unique" FIELDS="quizid" REFTABLE="quiz" REFFIELDS="id"/>
       </KEYS>
     </TABLE>
-    <TABLE NAME="quizaccess_attemptpass_log" COMMENT="Stores failed password attempts and lockout times for users">
+    <TABLE NAME="quizaccess_attemptpassword_log" COMMENT="Stores failed password attempts and lockout times for users">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="quizid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="Foreign key to quiz.id."/>

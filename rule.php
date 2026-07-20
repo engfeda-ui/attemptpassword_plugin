@@ -255,7 +255,7 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
         }
 
         $attemptnum = $this->get_attempt_number($lastattempt ? $lastattempt->id : null);
-        $record = $DB->get_record('quizaccess_attemptpass_log', [
+        $record = $DB->get_record('quizaccess_attemptpassword_log', [
             'quizid' => $this->quiz->id,
             'userid' => $USER->id,
             'attemptnum' => $attemptnum,
@@ -337,7 +337,7 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
         if ($expected !== '') {
             if ($entered !== $expected) {
                 // Wrong password - increment failed count and trigger lockout if reached.
-                $record = $DB->get_record('quizaccess_attemptpass_log', [
+                $record = $DB->get_record('quizaccess_attemptpassword_log', [
                     'quizid' => $this->quiz->id,
                     'userid' => $USER->id,
                     'attemptnum' => $attemptnum,
@@ -348,7 +348,7 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
                     if ($record->failedcount >= 5) {
                         $record->lockouttime = time() + 300; // 5 minutes lockout
                     }
-                    $DB->update_record('quizaccess_attemptpass_log', $record);
+                    $DB->update_record('quizaccess_attemptpassword_log', $record);
                     $failedcount = $record->failedcount;
                 } else {
                     $record = new \stdClass();
@@ -357,7 +357,7 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
                     $record->attemptnum = $attemptnum;
                     $record->failedcount = 1;
                     $record->lockouttime = 0;
-                    $DB->insert_record('quizaccess_attemptpass_log', $record);
+                    $DB->insert_record('quizaccess_attemptpassword_log', $record);
                     $failedcount = 1;
                 }
 

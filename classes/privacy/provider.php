@@ -48,7 +48,7 @@ class provider implements
      */
     public static function get_metadata(collection $items): collection {
         $items->add_database_table(
-            'quizaccess_attemptpass_log',
+            'quizaccess_attemptpassword_log',
             [
                 'quizid'      => 'privacy:metadata:quizid',
                 'userid'      => 'privacy:metadata:userid',
@@ -56,7 +56,7 @@ class provider implements
                 'failedcount' => 'privacy:metadata:failedcount',
                 'lockouttime' => 'privacy:metadata:lockouttime',
             ],
-            'privacy:metadata:quizaccess_attemptpass_log'
+            'privacy:metadata:quizaccess_attemptpassword_log'
         );
 
         return $items;
@@ -76,7 +76,7 @@ class provider implements
                   JOIN {course_modules} cm ON cm.id = c.instanceid AND c.contextlevel = :contextlevel
                   JOIN {modules} m ON m.id = cm.module AND m.name = :modname
                   JOIN {quiz} q ON q.id = cm.instance
-                  JOIN {quizaccess_attemptpass_log} log ON log.quizid = q.id
+                  JOIN {quizaccess_attemptpassword_log} log ON log.quizid = q.id
                  WHERE log.userid = :userid";
 
         $params = [
@@ -110,7 +110,7 @@ class provider implements
                 continue;
             }
 
-            $logs = $DB->get_records('quizaccess_attemptpass_log', [
+            $logs = $DB->get_records('quizaccess_attemptpassword_log', [
                 'quizid' => $cm->instance,
                 'userid' => $userid,
             ]);
@@ -147,7 +147,7 @@ class provider implements
             return;
         }
 
-        $DB->delete_records('quizaccess_attemptpass_log', ['quizid' => $cm->instance]);
+        $DB->delete_records('quizaccess_attemptpassword_log', ['quizid' => $cm->instance]);
     }
 
     /**
@@ -170,7 +170,7 @@ class provider implements
                 continue;
             }
 
-            $DB->delete_records('quizaccess_attemptpass_log', [
+            $DB->delete_records('quizaccess_attemptpassword_log', [
                 'quizid' => $cm->instance,
                 'userid' => $userid,
             ]);
@@ -195,7 +195,7 @@ class provider implements
         }
 
         $sql = "SELECT userid
-                  FROM {quizaccess_attemptpass_log}
+                  FROM {quizaccess_attemptpassword_log}
                  WHERE quizid = :quizid";
 
         $userlist->add_from_sql('userid', $sql, ['quizid' => $cm->instance]);
@@ -224,6 +224,6 @@ class provider implements
         [$insql, $inparams] = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
 
         $params = array_merge(['quizid' => $cm->instance], $inparams);
-        $DB->delete_records_select('quizaccess_attemptpass_log', "quizid = :quizid AND userid {$insql}", $params);
+        $DB->delete_records_select('quizaccess_attemptpassword_log', "quizid = :quizid AND userid {$insql}", $params);
     }
 }

@@ -31,7 +31,7 @@ $string['privacy:metadata:userid'] = 'The ID of the user who made the attempt.';
 $string['privacy:metadata:attemptnum'] = 'The attempt number on the quiz.';
 $string['privacy:metadata:failedcount'] = 'The count of failed password entry attempts.';
 $string['privacy:metadata:lockouttime'] = 'The time when the lockout expires.';
-$string['privacy:metadata:quizaccess_attemptpass_log'] = 'Database table storing the user failed attempts and lockout timers.';
+$string['privacy:metadata:quizaccess_attemptpassword_log'] = 'Database table storing the user failed attempts and lockout timers.';
 
 $string['genmethod'] = 'Password generation method';
 $string['genmethod_manual'] = 'Manual entry (comma-separated)';
