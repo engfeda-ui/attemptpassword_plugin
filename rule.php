@@ -381,7 +381,7 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
                 }
             } else {
                 // Correct password - clear log and trigger verified event.
-                $DB->delete_records('quizaccess_attemptpass_log', [
+                $DB->delete_records('quizaccess_attemptpassword_log', [
                     'quizid' => $this->quiz->id,
                     'userid' => $USER->id,
                     'attemptnum' => $attemptnum,
