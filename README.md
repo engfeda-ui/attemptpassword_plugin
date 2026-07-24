@@ -4,7 +4,7 @@
 [![PHP Version](https://img.shields.io/badge/PHP-8.1%20%7C%208.2%20%7C%208.3-blue.svg?style=flat-square)](https://php.net)
 [![Database](https://img.shields.io/badge/Database-PostgreSQL%20%7C%20MySQL%20%7C%20MariaDB-purple.svg?style=flat-square)](https://docs.moodle.org)
 [![License](https://img.shields.io/badge/License-GPL%20v3-green.svg?style=flat-square)](http://www.gnu.org/copyleft/gpl.html)
-[![Version](https://img.shields.io/badge/Version-v1.2.2-blue.svg?style=flat-square)](https://github.com/engfeda-ui/attemptpassword_plugin)
+[![Version](https://img.shields.io/badge/Version-v1.3.0-blue.svg?style=flat-square)](https://github.com/engfeda-ui/attemptpassword_plugin)
 
 A professional Moodle quiz access rule plugin that gives course teachers granular control over quiz security by enabling unique, attempt-specific passwords.
 
@@ -65,6 +65,9 @@ When quizzes allow multiple attempts, students who fail and are granted a reatte
 ---
 
 ## 📋 Changelog
+
+### v1.3.0 — 2026-07-24
+- **Release:** Standardized frankenstyle component name to `quizaccess_attemptpassword` installed under `mod/quiz/accessrule/attemptpassword`.
 
 ### v1.2.2 — 2026-07-20
 - **Fix:** Renamed database table to `quizaccess_attemptpassword_log` to satisfy `moodle-plugin-ci` validation rules requiring full component prefix.
