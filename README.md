@@ -4,7 +4,7 @@
 [![PHP Version](https://img.shields.io/badge/PHP-8.1%20%7C%208.2%20%7C%208.3-blue.svg?style=flat-square)](https://php.net)
 [![Database](https://img.shields.io/badge/Database-PostgreSQL%20%7C%20MySQL%20%7C%20MariaDB-purple.svg?style=flat-square)](https://docs.moodle.org)
 [![License](https://img.shields.io/badge/License-GPL%20v3-green.svg?style=flat-square)](http://www.gnu.org/copyleft/gpl.html)
-[![Version](https://img.shields.io/badge/Version-v1.3.2-blue.svg?style=flat-square)](https://github.com/engfeda-ui/attemptpassword_plugin)
+[![Version](https://img.shields.io/badge/Version-v1.3.3-blue.svg?style=flat-square)](https://github.com/engfeda-ui/attemptpassword_plugin)
 
 A professional Moodle quiz access rule plugin that gives course teachers granular control over quiz security by enabling unique, attempt-specific passwords.
 
@@ -23,6 +23,7 @@ When quizzes allow multiple attempts, students who fail and are granted a reatte
   - **Privacy Subsystem (GDPR):** Full compliance with Moodle's privacy API.
   - **Backup & Restore:** Seamlessly backs up and restores attempt passwords across courses and sites.
   - **Preflight Check Integration:** Integrates natively with Moodle's quiz access control UI.
+- **Localization Support:** English and Arabic (`ar`) language packs included.
 - **Rigorous Testing:** Includes robust PHPUnit test coverage for core attempt-logic verification.
 - **CI/CD Ready:** Automated GitHub Actions workflows for continuous integration testing.
 
@@ -65,6 +66,9 @@ When quizzes allow multiple attempts, students who fail and are granted a reatte
 ---
 
 ## 📋 Changelog
+
+### v1.3.3 — 2026-08-24
+- **Documentation:** Updated documentation to reflect Arabic language localization support.
 
 ### v1.3.2 — 2026-08-24
 - **CI/CD:** Streamlined deployment pipeline directly to Production environment and removed deprecated staging branch/configuration.
