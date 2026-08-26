@@ -419,7 +419,7 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
         $SESSION->$sesskey = true;
 
         // Also clear failed password attempts for safety.
-        $DB->delete_records('quizaccess_attemptpass_log', [
+        $DB->delete_records('quizaccess_attemptpassword_log', [
             'quizid' => $this->quiz->id,
             'userid' => $USER->id,
             'attemptnum' => $attemptnum,
