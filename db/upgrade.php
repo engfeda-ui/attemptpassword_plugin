@@ -61,5 +61,41 @@ function xmldb_quizaccess_attemptpassword_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026052400, 'quizaccess', 'attemptpassword');
     }
 
+    // 2026082700: Enforce one lockout-counter row per (quizid, userid, attemptnum).
+    // Remove any duplicates created by historical races, then make the index UNIQUE.
+    if ($oldversion < 2026082700) {
+        $table = new xmldb_table('quizaccess_attemptpassword_log');
+
+        $dupids = $DB->get_fieldset_sql("
+            SELECT l.id
+              FROM {quizaccess_attemptpassword_log} l
+              JOIN {quizaccess_attemptpassword_log} newer
+                ON newer.quizid     = l.quizid
+               AND newer.userid     = l.userid
+               AND newer.attemptnum = l.attemptnum
+               AND newer.id > l.id
+        ");
+        if (!empty($dupids)) {
+            foreach (array_chunk($dupids, 1000) as $chunk) {
+                $DB->delete_records_list('quizaccess_attemptpassword_log', 'id', $chunk);
+            }
+        }
+
+        $oldidx = new xmldb_index('quiz_user_attempt_idx', XMLDB_INDEX_NOTUNIQUE,
+            ['quizid', 'userid', 'attemptnum']);
+        if ($dbman->find_index_name($table, $oldidx)) {
+            $dbman->drop_index($table, $oldidx);
+        }
+
+        $newidx = new xmldb_index('quiz_user_attempt_idx', XMLDB_INDEX_UNIQUE,
+            ['quizid', 'userid', 'attemptnum']);
+        if (!$dbman->find_index_name($table, $newidx)) {
+            $dbman->add_index($table, $newidx);
+        }
+
+        // Quizaccess savepoint reached.
+        upgrade_plugin_savepoint(true, 2026082700, 'quizaccess', 'attemptpassword');
+    }
+
     return true;
 }

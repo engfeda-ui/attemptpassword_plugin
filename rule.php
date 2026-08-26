@@ -336,29 +336,52 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
 
         if ($expected !== '') {
             if ($entered !== $expected) {
-                // Wrong password - increment failed count and trigger lockout if reached.
-                $record = $DB->get_record('quizaccess_attemptpassword_log', [
-                    'quizid' => $this->quiz->id,
-                    'userid' => $USER->id,
+                // Wrong password — atomically bump the failed counter (race-safe),
+                // inserting the first row only when needed.
+                $params = [
+                    'quizid'     => $this->quiz->id,
+                    'userid'     => $USER->id,
                     'attemptnum' => $attemptnum,
-                ]);
+                ];
 
-                if ($record) {
-                    $record->failedcount++;
-                    if ($record->failedcount >= self::get_max_failed_attempts()) {
-                        $record->lockouttime = time() + self::get_lockout_duration();
-                    }
-                    $DB->update_record('quizaccess_attemptpassword_log', $record);
-                    $failedcount = $record->failedcount;
+                $exists = $DB->record_exists('quizaccess_attemptpassword_log', $params);
+
+                if ($exists) {
+                    $DB->execute(
+                        "UPDATE {quizaccess_attemptpassword_log}
+                            SET failedcount = failedcount + 1
+                          WHERE quizid = :quizid AND userid = :userid AND attemptnum = :attemptnum",
+                        $params
+                    );
                 } else {
-                    $record = new \stdClass();
-                    $record->quizid = $this->quiz->id;
-                    $record->userid = $USER->id;
-                    $record->attemptnum = $attemptnum;
-                    $record->failedcount = 1;
-                    $record->lockouttime = 0;
-                    $DB->insert_record('quizaccess_attemptpassword_log', $record);
-                    $failedcount = 1;
+                    try {
+                        $firstrow = new \stdClass();
+                        $firstrow->quizid      = $this->quiz->id;
+                        $firstrow->userid      = $USER->id;
+                        $firstrow->attemptnum  = $attemptnum;
+                        $firstrow->failedcount = 1;
+                        $firstrow->lockouttime = 0;
+                        $DB->insert_record('quizaccess_attemptpassword_log', $firstrow);
+                    } catch (\dml_write_exception $e) {
+                        // Lost an insert race against a concurrent request — bump instead.
+                        unset($e);
+                        $DB->execute(
+                            "UPDATE {quizaccess_attemptpassword_log}
+                                SET failedcount = failedcount + 1
+                              WHERE quizid = :quizid AND userid = :userid AND attemptnum = :attemptnum",
+                            $params
+                        );
+                    }
+                }
+
+                // Read back the authoritative counter value.
+                $record = $DB->get_record('quizaccess_attemptpassword_log', $params);
+                $failedcount = $record ? (int)$record->failedcount : 1;
+
+                // Apply/extend lockout when the configured threshold is crossed.
+                if ($failedcount >= self::get_max_failed_attempts()) {
+                    $DB->set_field('quizaccess_attemptpassword_log', 'lockouttime',
+                        time() + self::get_lockout_duration(), $params);
                 }
 
                 // Log failed security event.

@@ -31,7 +31,7 @@
         <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="quiz_user_attempt_idx" UNIQUE="false" FIELDS="quizid, userid, attemptnum"/>
+        <INDEX NAME="quiz_user_attempt_idx" UNIQUE="true" FIELDS="quizid, userid, attemptnum"/>
       </INDEXES>
     </TABLE>
   </TABLES>
