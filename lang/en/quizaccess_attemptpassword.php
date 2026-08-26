@@ -49,3 +49,9 @@ $string['lockoutmessage'] = 'Too many failed password attempts. You have been lo
 $string['lockoutwarning'] = 'Caution: you have entered an incorrect password {$a->failed} times out of {$a->max}. After {$a->max} incorrect entries, you will be locked out for 5 minutes.';
 $string['copytoclipboard'] = 'Copy Passwords to Clipboard';
 $string['copied'] = 'Copied!';
+
+$string['settingsheader'] = 'Attempt password lockout settings';
+$string['maxfailedattempts'] = 'Maximum failed attempts';
+$string['maxfailedattempts_desc'] = 'Number of incorrect password entries allowed per attempt before the user is temporarily locked out.';
+$string['lockoutduration'] = 'Lockout duration (seconds)';
+$string['lockoutduration_desc'] = 'How long the user is prevented from starting the attempt after exceeding the maximum failed attempts.';

@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for the quizaccess_attemptpassword plugin.
+ * Admin settings for the quizaccess_attemptpassword plugin.
  *
  * @package    quizaccess_attemptpassword
  * @copyright  2026 Mahmoud Salem
@@ -24,9 +24,27 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026082600;
-$plugin->requires  = 2022041900; // Moodle 4.0 minimum.
-$plugin->supported = [400, 500]; // Moodle 4.0 - 5.0.
-$plugin->component = 'quizaccess_attemptpassword';
-$plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = 'v1.3.5';
+if ($ADMIN->fulltree) {
+
+    $settings->add(new admin_setting_heading(
+        'quizaccess_attemptpassword/settings',
+        get_string('settingsheader', 'quizaccess_attemptpassword'),
+        ''
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'quizaccess_attemptpassword/maxfailedattempts',
+        get_string('maxfailedattempts', 'quizaccess_attemptpassword'),
+        get_string('maxfailedattempts_desc', 'quizaccess_attemptpassword'),
+        5,
+        PARAM_INT
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'quizaccess_attemptpassword/lockoutduration',
+        get_string('lockoutduration', 'quizaccess_attemptpassword'),
+        get_string('lockoutduration_desc', 'quizaccess_attemptpassword'),
+        300,
+        PARAM_INT
+    ));
+}

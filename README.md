@@ -4,7 +4,7 @@
 [![PHP Version](https://img.shields.io/badge/PHP-8.1%20%7C%208.2%20%7C%208.3-blue.svg?style=flat-square)](https://php.net)
 [![Database](https://img.shields.io/badge/Database-PostgreSQL%20%7C%20MySQL%20%7C%20MariaDB-purple.svg?style=flat-square)](https://docs.moodle.org)
 [![License](https://img.shields.io/badge/License-GPL%20v3-green.svg?style=flat-square)](http://www.gnu.org/copyleft/gpl.html)
-[![Version](https://img.shields.io/badge/Version-v1.3.4-blue.svg?style=flat-square)](https://github.com/engfeda-ui/attemptpassword_plugin)
+[![Version](https://img.shields.io/badge/Version-v1.3.5-blue.svg?style=flat-square)](https://github.com/engfeda-ui/attemptpassword_plugin)
 
 A professional Moodle quiz access rule plugin that gives course teachers granular control over quiz security by enabling unique, attempt-specific passwords.
 
@@ -66,6 +66,9 @@ When quizzes allow multiple attempts, students who fail and are granted a reatte
 ---
 
 ## 📋 Changelog
+
+### v1.3.5 — 2026-08-26
+- **New:** Brute-force lockout policy is now admin-configurable via **Site administration > Plugins > Quiz access rules > Attempt password**: maximum failed attempts (default 5) and lockout duration in seconds (default 300). Previously both values were hardcoded.
 
 ### v1.3.4 — 2026-08-26
 - **Fix (Critical):** Corrected leftover wrong table name `quizaccess_attemptpass_log` in `notify_preflight_check_passed()` (`rule.php`) to `quizaccess_attemptpassword_log` — remnant of the v1.2.2 table rename that caused a DML "table not found" exception on every passed preflight check.

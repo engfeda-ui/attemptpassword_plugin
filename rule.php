@@ -345,8 +345,8 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
 
                 if ($record) {
                     $record->failedcount++;
-                    if ($record->failedcount >= 5) {
-                        $record->lockouttime = time() + 300; // 5 minutes lockout
+                    if ($record->failedcount >= self::get_max_failed_attempts()) {
+                        $record->lockouttime = time() + self::get_lockout_duration();
                     }
                     $DB->update_record('quizaccess_attemptpassword_log', $record);
                     $failedcount = $record->failedcount;
@@ -373,11 +373,15 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
                 ]);
                 $event->trigger();
 
-                if ($failedcount >= 5) {
-                    $errors['attemptpassword_entry'] = get_string('lockoutmessage', 'quizaccess_attemptpassword', 5);
+                if ($failedcount >= self::get_max_failed_attempts()) {
+                    $errors['attemptpassword_entry'] = get_string('lockoutmessage', 'quizaccess_attemptpassword',
+                        max(1, (int)ceil(self::get_lockout_duration() / 60)));
                 } else {
                     $errors['attemptpassword_entry'] = get_string('wrongpassword', 'quizaccess_attemptpassword') . ' ' .
-                        get_string('lockoutwarning', 'quizaccess_attemptpassword', ['failed' => $failedcount, 'max' => 5]);
+                        get_string('lockoutwarning', 'quizaccess_attemptpassword', [
+                            'failed' => $failedcount,
+                            'max' => self::get_max_failed_attempts(),
+                        ]);
                 }
             } else {
                 // Correct password - clear log and trigger verified event.
@@ -424,5 +428,23 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
             'userid' => $USER->id,
             'attemptnum' => $attemptnum,
         ]);
+    }
+
+    /**
+     * Maximum failed password attempts before lockout (admin configurable).
+     *
+     * @return int
+     */
+    protected static function get_max_failed_attempts(): int {
+        return (int)(get_config('quizaccess_attemptpassword', 'maxfailedattempts') ?: 5);
+    }
+
+    /**
+     * Lockout duration in seconds (admin configurable).
+     *
+     * @return int
+     */
+    protected static function get_lockout_duration(): int {
+        return (int)(get_config('quizaccess_attemptpassword', 'lockoutduration') ?: 300);
     }
 }

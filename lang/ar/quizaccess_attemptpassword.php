@@ -48,3 +48,9 @@ $string['privacy:metadata:lockouttime'] = 'توقيت انتهاء حظر الد
 $string['privacy:metadata:quizaccess_attemptpassword_log'] = 'جدول قاعدة البيانات الذي يحفظ محاولات الطلاب الخاطئة وسجلات حظر الدخول المؤقت.';
 $string['event_password_failed'] = 'فشل إدخال كلمة مرور الاختبار';
 $string['event_password_verified'] = 'تم التحقق من كلمة مرور الاختبار بنجاح';
+
+$string['settingsheader'] = 'إعدادات قفل كلمة سر المحاولة';
+$string['maxfailedattempts'] = 'الحد الأقصى للمحاولات الخاطئة';
+$string['maxfailedattempts_desc'] = 'عدد مرات إدخال كلمة سر خاطئة المسموح بها لكل محاولة قبل قفل المستخدم مؤقتاً.';
+$string['lockoutduration'] = 'مدة القفل (بالثواني)';
+$string['lockoutduration_desc'] = 'مدة منع المستخدم من بدء المحاولة بعد تجاوز الحد الأقصى للمحاولات الخاتئة.';
