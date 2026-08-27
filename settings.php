@@ -25,7 +25,6 @@
 defined('MOODLE_INTERNAL') || die();
 
 if ($ADMIN->fulltree) {
-
     $settings->add(new admin_setting_heading(
         'quizaccess_attemptpassword/settings',
         get_string('settingsheader', 'quizaccess_attemptpassword'),

@@ -380,8 +380,12 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
 
                 // Apply/extend lockout when the configured threshold is crossed.
                 if ($failedcount >= self::get_max_failed_attempts()) {
-                    $DB->set_field('quizaccess_attemptpassword_log', 'lockouttime',
-                        time() + self::get_lockout_duration(), $params);
+                    $DB->set_field(
+                        'quizaccess_attemptpassword_log',
+                        'lockouttime',
+                        time() + self::get_lockout_duration(),
+                        $params
+                    );
                 }
 
                 // Log failed security event.
@@ -397,14 +401,18 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
                 $event->trigger();
 
                 if ($failedcount >= self::get_max_failed_attempts()) {
-                    $errors['attemptpassword_entry'] = get_string('lockoutmessage', 'quizaccess_attemptpassword',
-                        max(1, (int)ceil(self::get_lockout_duration() / 60)));
+                    $errors['attemptpassword_entry'] = get_string(
+                        'lockoutmessage',
+                        'quizaccess_attemptpassword',
+                        max(1, (int)ceil(self::get_lockout_duration() / 60))
+                    );
                 } else {
-                    $errors['attemptpassword_entry'] = get_string('wrongpassword', 'quizaccess_attemptpassword') . ' ' .
-                        get_string('lockoutwarning', 'quizaccess_attemptpassword', [
-                            'failed' => $failedcount,
-                            'max' => self::get_max_failed_attempts(),
-                        ]);
+                    $warning = get_string('lockoutwarning', 'quizaccess_attemptpassword', [
+                        'failed' => $failedcount,
+                        'max' => self::get_max_failed_attempts(),
+                    ]);
+                    $errors['attemptpassword_entry'] = get_string('wrongpassword', 'quizaccess_attemptpassword') .
+                        ' ' . $warning;
                 }
             } else {
                 // Correct password - clear log and trigger verified event.

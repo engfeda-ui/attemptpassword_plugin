@@ -81,14 +81,20 @@ function xmldb_quizaccess_attemptpassword_upgrade($oldversion) {
             }
         }
 
-        $oldidx = new xmldb_index('quiz_user_attempt_idx', XMLDB_INDEX_NOTUNIQUE,
-            ['quizid', 'userid', 'attemptnum']);
+        $oldidx = new xmldb_index(
+            'quiz_user_attempt_idx',
+            XMLDB_INDEX_NOTUNIQUE,
+            ['quizid', 'userid', 'attemptnum']
+        );
         if ($dbman->find_index_name($table, $oldidx)) {
             $dbman->drop_index($table, $oldidx);
         }
 
-        $newidx = new xmldb_index('quiz_user_attempt_idx', XMLDB_INDEX_UNIQUE,
-            ['quizid', 'userid', 'attemptnum']);
+        $newidx = new xmldb_index(
+            'quiz_user_attempt_idx',
+            XMLDB_INDEX_UNIQUE,
+            ['quizid', 'userid', 'attemptnum']
+        );
         if (!$dbman->find_index_name($table, $newidx)) {
             $dbman->add_index($table, $newidx);
         }
