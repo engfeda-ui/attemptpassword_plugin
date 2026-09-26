@@ -335,7 +335,7 @@ class quizaccess_attemptpassword extends quiz_access_rule_base {
         $entered = isset($data['attemptpassword_entry']) ? trim($data['attemptpassword_entry']) : '';
 
         if ($expected !== '') {
-            if ($entered !== $expected) {
+            if (!hash_equals($expected, $entered)) {
                 // Wrong password — atomically bump the failed counter (race-safe),
                 // inserting the first row only when needed.
                 $params = [
